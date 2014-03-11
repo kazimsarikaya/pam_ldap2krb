@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.63])
 AC_INIT([pam_ldap2krb], [0.1], [kazimsarikaya@sanaldiyar.com])
 AM_INIT_AUTOMAKE
 LT_INIT
