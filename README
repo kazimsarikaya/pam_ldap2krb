@@ -1,0 +1,55 @@
+This package provides a pam module for ldap system to ldap+kerberos 
+(with ldap backend).
+
+The name of pam module is pam_ldap2krb.
+
+Module has an configuration file at /etc/pam_ldap2krb.conf
+
+The main and only aim of the module is, migration of user passwords to
+the kerberos. The ldap's userpassword format and kerberos's 
+krbprincipalkey data formats are different. While migration the user
+passwords need resets. However this progress is annoying for users.
+Hence this module helps for migration. 
+
+For building: run ./autogen.sh and then regular ./configure
+If you want to build only rpm packages only run: make rpmbuild 
+However you can continue with make and make install.
+
+For installing
+The module assumes that you have an ldap id provider, and a kerberos
+installation with ldap backend at the same ldap sever.
+You should install sssd with id provider ldap and chpass & auth
+provider kerberos. The pam module for sssd should be set and working.
+
+Then process with these steps:
+
+Create a kerberos user and set a password. Add change password acl for
+this user.
+
+Add to system-auth and password-auth before pam_sssd.so module:
+
+auth    requisite    pam_ldap2krb.so /etc/pam_ldap2krb.conf
+
+Modify /etc/pam_ldap2krb.conf 
+
+In configuration file you can see sample settings. ldap base, ldap
+search dn and password, kerberos ldap base, a kerberos change password
+user and its authentication token and kerberos realm.
+
+For migration of passwords is:
+
+Searching user on ldap and authenticate it. Then looking for if
+kerberos principal key is set or not. If it is not set, the password
+user entered is saved to the kerberos. Otherwise kerberos password does
+not change.
+
+After migration completed, you can remove pam settings.
+
+For migration process the login may be slow because of setting kerberos
+passwords.
+
+For any question you can contact me.
+
+Kazım SARIKAYA
+kazimsarikaya@sanaldiyar.com
+
