@@ -4,7 +4,7 @@ Release:	1%{?dist}
 Summary:	Password Migration PAM Module for ldap to ldap+kerberos
 
 Group:		security
-License:	GPLv2
+License:	GPLv3
 URL:		https://git.sanaldiyar.com
 Source0:	%{name}-%{version}.tar.gz
 
