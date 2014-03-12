@@ -10,6 +10,7 @@ URL:		https://git.sanaldiyar.com/gitweb.cgi/pam_ldap2krb.git
 # following commands to generate the tarball:
 #  git clone https://git.sanaldiyar.com/gitweb.cgi/pam_ldap2krb.git
 #  ./autogen.sh
+#  ./configure
 #  make distcheck
 Source0:	%{name}-%{version}.tar.gz
 
