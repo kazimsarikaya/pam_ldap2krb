@@ -8,6 +8,7 @@ URL:		https://git.sanaldiyar.com/gitweb.cgi/pam_ldap2krb.git
 # The source for this package was pulled from upstrams's vcs. Use the
 # following commands to generate the tarball:
 #  git clone https://git.sanaldiyar.com/gitweb.cgi/pam_ldap2krb.git
+#  git checkout tags/v0.1
 #  ./autogen.sh
 #  ./configure
 #  make distcheck
@@ -32,10 +33,8 @@ make %{?_smp_mflags}
 %install
 %make_install
 
-%post
-/sbin/ldconfig
-%postun
-/sbin/ldconfig
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
 %files
 %doc README
@@ -44,5 +43,5 @@ make %{?_smp_mflags}
 
 
 %changelog
-* Tue Mar 11 2014 Kazım SARIKAYA <kazimsarikaya@sanaldiyar.com> - 0.1
+* Tue Mar 11 2014 Kazım SARIKAYA <kazimsarikaya@sanaldiyar.com> - 0.1-1
 - Initial rpm release
