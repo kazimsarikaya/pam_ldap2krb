@@ -3,7 +3,6 @@ Version:	0.1
 Release:	1%{?dist}
 Summary:	Password Migration PAM Module for ldap to ldap+kerberos
 
-#Group:		security
 License:	GPLv3
 URL:		https://git.sanaldiyar.com/gitweb.cgi/pam_ldap2krb.git
 # The source for this package was pulled from upstrams's vcs. Use the
@@ -15,7 +14,6 @@ URL:		https://git.sanaldiyar.com/gitweb.cgi/pam_ldap2krb.git
 Source0:	%{name}-%{version}.tar.gz
 
 BuildRequires:	pam-devel libconfuse-devel krb5-devel openldap-devel
-#Requires:	pam libconfuse krb5-workstation openldap
 
 %description
 While migration from LDAP to LDAP+Kerberos, password migration is difficult
