@@ -25,7 +25,7 @@ AC_CHECK_LIB([ldap], [ldap_initialize])
 AC_CHECK_LIB([pam], [pam_get_user])
 
 # Checks for header files.
-AC_CHECK_HEADERS([memory.h stdlib.h ldap.h confuse.h krb5.h pam_appl.h pam_modules.h pam_ext.h])
+AC_CHECK_HEADERS([memory.h stdlib.h ldap.h confuse.h krb5.h security/pam_appl.h security/pam_modules.h security/pam_ext.h],[],[echo "missing header, can not continue!"; exit -1;])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
