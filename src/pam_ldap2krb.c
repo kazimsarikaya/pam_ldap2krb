@@ -16,6 +16,7 @@
 #include <security/pam_appl.h>
 #include <security/pam_modules.h>
 #include <security/pam_ext.h>
+#include <syslog.h>
 
 
 cfg_opt_t opts[] = {
@@ -23,6 +24,7 @@ cfg_opt_t opts[] = {
     CFG_STR("ldapbinddn", NULL, CFGF_NODEFAULT),
     CFG_STR("ldapbindpw", NULL, CFGF_NODEFAULT),
     CFG_STR("ldapbase", NULL, CFGF_NODEFAULT),
+    CFG_STR("ldapcafile", NULL, CFGF_NODEFAULT),
     CFG_STR("krbrealm", NULL, CFGF_NODEFAULT),
     CFG_STR("krbldapbase", NULL, CFGF_NODEFAULT),
     CFG_STR("krbpwuser", NULL, CFGF_NODEFAULT),
@@ -37,6 +39,7 @@ char * KRBPRINCIPALKEYATTR[] = {
 
 int updateauthtoken(char * username, char *password, const char *config) {
     char * tmp;
+    int true = 1;
 
     int eres = EXIT_SUCCESS;
 
@@ -45,6 +48,7 @@ int updateauthtoken(char * username, char *password, const char *config) {
     cfg = cfg_init(opts, CFGF_NONE);
 
     if (cfg_parse(cfg, config) == CFG_PARSE_ERROR) {
+        syslog(LOG_ALERT, "can not open the configuration file: %s\n", config);
         eres = EXIT_FAILURE;
         goto exit;
     }
@@ -54,15 +58,26 @@ int updateauthtoken(char * username, char *password, const char *config) {
     cfg_opt_t * ldapserver = cfg_getopt(cfg, "ldapserver");
     int res = ldap_initialize(&ldap, cfg_opt_getnstr(ldapserver, 0));
     if (res != LDAP_SUCCESS) {
+        syslog(LOG_ALERT, "Can not initialize ldap connection to server\n");
         cfg_free(cfg);
         return EXIT_FAILURE;
     }
     cfg_free_value(ldapserver);
 
+    cfg_opt_t * ldapcafile = cfg_getopt(cfg, "ldapcafile");
+    res = ldap_set_option(ldap, LDAP_OPT_X_TLS_CACERTFILE, cfg_opt_getnstr(ldapcafile, 0));
+    if (res != LDAP_SUCCESS) {
+        syslog(LOG_ALERT, "can not set ldap ca certificate\n");
+        cfg_free(cfg);
+        return EXIT_FAILURE;
+    }
+    cfg_free_value(ldapcafile);
+
     cfg_opt_t * ldapbinddn = cfg_getopt(cfg, "ldapbinddn");
     cfg_opt_t * ldapbindpw = cfg_getopt(cfg, "ldapbindpw");
     res = ldap_simple_bind_s(ldap, cfg_opt_getnstr(ldapbinddn, 0), cfg_opt_getnstr(ldapbindpw, 0));
     if (res != LDAP_SUCCESS) {
+        syslog(LOG_ALERT, "can not bind to ldap server: %s\n", ldap_err2string(res));
         cfg_free(cfg);
         return EXIT_FAILURE;
     }
@@ -115,13 +130,13 @@ int updateauthtoken(char * username, char *password, const char *config) {
     ber_free(bl, 0);
     ldap_msgfree(msg);
 
-    
+
     if (keyexits == 1) {
         res = ldap_unbind_s(ldap);
         cfg_free(cfg);
         eres = EXIT_SUCCESS;
         goto exit;
-     }
+    }
 
     tmp = malloc(sizeof (char)*1024);
     memset(tmp, 0, sizeof (char)*1024);
@@ -249,7 +264,8 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
         return PAM_IGNORE;
     }
 
-    if(updateauthtoken(username, password, config) != EXIT_SUCCESS) {
+    syslog(LOG_INFO, "ldap to kerberos password migration will be performed for user: %s\n", username);
+    if (updateauthtoken(username, password, config) != EXIT_SUCCESS) {
         return PAM_IGNORE;
     }
 
